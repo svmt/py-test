@@ -1,0 +1,39 @@
+name: 'Code testing'
+description: Code testing actions
+
+runs:
+  using: composite
+  steps:
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@d09bd5e6005b175076f227b13d9730d56e9dcfcb
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Lint with flake8
+      shell: bash
+      run: |
+        flake8 app
+
+    - name: Lint with Pylint
+      shell: bash
+      run: |
+        pylint app
+
+#      - name: Test with pytest
+#        run: |
+#          pytest
+#
+#      # @todo add codacy integration?
+#      - name: Run codacy-coverage-reporter
+#        uses: codacy/codacy-coverage-reporter-action@v1
+#        with:
+#          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+#          coverage-reports: reports/coverage.xml

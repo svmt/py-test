@@ -1,0 +1,30 @@
+name: Re-tag images and Push
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+
+  re-tag:
+    name: Re-tag images
+    runs-on: ubuntu-latest
+#    permissions:
+#      id-token: write
+#      contents: read
+    steps:
+
+      - name: Re-tag application image
+        uses: cloudbeds/composite-actions/docker/crane-re-tag/ghcr@v2
+        with:
+          image_name: ${{ github.repository }}
+          src_tag: ${{ github.sha }}
+          dst_tag: ${{ github.ref_name }}
+
+      - name: Re-tag image migrations image
+        uses: cloudbeds/composite-actions/docker/crane-re-tag/ghcr@v2
+        with:
+          image_name: ${{ github.repository }}/migrations
+          src_tag: ${{ github.sha }}
+          dst_tag: ${{ github.ref_name }}

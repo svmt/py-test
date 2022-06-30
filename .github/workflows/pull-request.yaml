@@ -1,0 +1,21 @@
+name: Code Testing
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  pull-requests: write
+
+jobs:
+  code-testing:
+    name: Code testing
+    runs-on: ubuntu-latest
+    steps:
+
+      # Release v3.0.2 https://github.com/actions/checkout/commit/2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: ./.github/actions/code-testing

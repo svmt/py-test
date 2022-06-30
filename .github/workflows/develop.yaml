@@ -1,0 +1,49 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+
+  code-testing:
+    name: Code testing
+    runs-on: ubuntu-latest
+    steps:
+
+      # Release v3.0.2 https://github.com/actions/checkout/commit/2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      - uses: ./.github/actions/code-testing
+
+  nginx:
+    name: Build and push image
+    runs-on: ubuntu-latest
+    needs: code-testing
+#    permissions:
+#      id-token: write
+#      contents: read
+    steps:
+
+      - name: Build and push nginx image
+        uses: cloudbeds/composite-actions/docker/build-push/ghcr@v2
+        with:
+          image_name: ${{ github.event.repository.name }}
+          image_tag: ${{ github.sha }}
+          dockerfile_path: ./docker/Dockerfile
+
+#  update-deployment:
+#    name: Triggers action to update ArgoCD application deployment manifest with new image tag
+#    needs: [ nginx, php-fpm ]
+#    runs-on: ubuntu-latest
+#    steps:
+#
+#      - name: Update application on develop cluster
+#        uses: cloudbeds/trigger-workflow-and-wait@v1.6.2
+#        with:
+#          owner: cloudbeds
+#          repo: argocd-gx-api
+#          github_token: ${{ secrets.CB_CI_WORKFLOW_TOKEN }}
+#          workflow_file_name: update-application.yaml
+#          client_payload: '{"cluster": "dev-ga", "app_name": "${{ github.event.repository.name }}", "image_tag": "${{ github.sha }}" }'
